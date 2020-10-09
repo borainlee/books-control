@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Document</title>
+        <style type="text/css">
+            [v-cloak] {
+                display: none;
+            }
+            .grid {
+                margin: auto;
+                width: 530px;
+                text-align: center;
+            }
+            .grid table {
+                border-top: 1px solid blueviolet;
+                width: 100%;
+                border-collapse: collapse;
+            }
+            .grid th,
+            td {
+                padding: 10;
+                border: 1px dashed skyblue;
+                height: 35px;
+                line-height: 35px;
+            }
+            .grid th {
+                background-color: skyblue;
+                /* background-image: linear-gradient(to bottom right, red, gold); */
+            }
+            .grid .book {
+                padding-bottom: 10px;
+                padding-top: 5px;
+                /* background-color: yellowgreen; */
+                background-image: linear-gradient(to bottom right, yellow, skyblue);
+            }
+            .total {
+                padding: 5px 0;
+                background-color: yellowgreen;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="app" v-cloak>
+            <div class="grid">
+                <div>
+                    <h1>图书管理</h1>
+                    <div class="book">
+                        <div>
+                            <label for="id">编号：</label>
+                            <input type="text" id="id" v-model="id" :disabled="flag" />
+                            <label for="name">名称：</label>
+                            <input type="text" id="name" v-model="name" v-focus />
+                            <button @click="add" :disabled="subm">提交</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="total">图书总数为：{{total}}</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>编号</th>
+                            <th>名称</th>
+                            <th>时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(item,index) in books" :key="item.id">
+                            <td>{{item.id}}</td>
+                            <td>{{item.name}}</td>
+                            <td>{{item.date | format('yyyy-MM-dd hh:mm:ss')}}</td>
+                            <td>
+                                <a href="" @click.prevent="edit(item)">修改</a>
+                                <span>|</span>
+                                <a href="" @click.prevent="del(index)">删除</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <script type="text/javascript" src="js/vue.js"></script>
+        <script src="./js/time.js"></script>
+        <script type="text/javascript">
+            Vue.filter('format', dateFormat)
+            Vue.directive('focus', {
+                inserted: function (el) {
+                    el.focus()
+                },
+            })
+            var vm = new Vue({
+                el: '#app',
+                data: {
+                    id: '',
+                    date: Date.now(),
+                    name: '',
+                    flag: false,
+                    subm: false,
+                    books: [
+                        {
+                            id: 1,
+                            name: '三国演义',
+                            date: 1602229205551,
+                        },
+                        {
+                            id: 2,
+                            name: '水浒传',
+                            date: 1602229205551,
+                        },
+                        {
+                            id: 3,
+                            name: '红楼梦',
+                            date: 1602229205551,
+                        },
+                        {
+                            id: 4,
+                            name: '西游记',
+                            date: 1602229205551,
+                        },
+                    ],
+                },
+                computed: {
+                    total() {
+                        return this.books.length
+                    },
+                },
+                methods: {
+                    add() {
+                        if (this.flag) {
+                            this.books.some(item => {
+                                if (item.id === this.id) {
+                                    item.name = this.name
+                                    return true
+                                }
+                            })
+                            this.flag = false
+                        } else {
+                            if (this.id && this.name) {
+                                this.books.push({
+                                    id: this.id,
+                                    name: this.name,
+                                    date: this.date,
+                                })
+                            } else {
+                                alert('必须填写')
+                            }
+                        }
+                        this.id = ''
+                        this.name = ''
+                    },
+                    edit(obj) {
+                        // console.log(obj)
+                        // console.log(this)
+                        this.flag = true
+                        this.id = obj.id
+                        this.name = obj.name
+                    },
+                    del(index) {
+                        this.books.splice(index, 1)
+                    },
+                },
+                watch: {
+                    id(val) {
+                        this.subm = this.books.some(item => {
+                            return item.id === Number(val)
+                        })
+                    },
+                    name(val) {
+                        this.subm = this.books.some(item => {
+                            return item.name === val
+                        })
+                    },
+                },
+            })
+        </script>
+    </body>
+</html>
